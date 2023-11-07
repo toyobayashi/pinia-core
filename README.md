@@ -14,6 +14,7 @@ Based on Vue 3.3.8 & Pinia 2.1.7
 ```ts
 import { useRef, useCallback, useSyncExternalStore } from 'react'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+import type { Plugin, InjectionKey, App } from '@vue/runtime-core'
 import { Store, createPinia, defineStore } from 'pinia-core'
 
 export function useStore<S extends Store, T = S> (piniaStore: S, selector?: (state: S['$state']) => T): T {
@@ -45,19 +46,34 @@ export function useStore<S extends Store, T = S> (piniaStore: S, selector?: (sta
     })
   }, [piniaStore, selector])
 
-  return useSyncExternalStore(sub, () => snap.current.result as T)
+  const getSnap = useCallback(() => snap.current.result as T, [])
+
+  return useSyncExternalStore(sub, getSnap)
+}
+
+interface FakeApp {
+  config: {
+    globalProperties: Record<string, unknown>
+  };
+  use<Options extends unknown[]>(plugin: Plugin<Options>): this;
+  provide<T>(key: InjectionKey<T> | string, value: T): this;
 }
 
 // for plugin
-const fakeVueApp = {
+const fakeVueApp: FakeApp = {
   provide () {
-    console.log('provide')
+    return this
   },
   config: {
     globalProperties: {}
   },
-  use (plugin: { install: (app: unknown) => void }) {
-    return plugin.install(fakeVueApp)
+  use (plugin) {
+    if (typeof plugin === 'function') {
+      plugin(this as App)
+    } else {
+      plugin.install(this as App)
+    }
+    return this
   }
 }
 

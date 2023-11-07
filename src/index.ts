@@ -86,3 +86,17 @@ export { acceptHMRUpdate } from './hmr'
 // export { PiniaVuePlugin } from './vue2-plugin'
 
 export * from './globalExtensions'
+
+// additional exports
+import { version as vueVersion } from './vue'
+export { watch, nextTick } from './vue'
+export type { WatchOptions } from './vue'
+
+declare const __PINIA_VESION__: string
+declare const __VERSION__: string
+
+export const version = __VERSION__
+export const versions = {
+  pinia: __PINIA_VESION__,
+  vue: vueVersion
+}

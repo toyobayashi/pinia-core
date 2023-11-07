@@ -52,7 +52,7 @@ import { IS_CLIENT, USE_DEVTOOLS } from './env'
 import { patchObject } from './hmr'
 import { addSubscription, triggerSubscriptions, noop } from './subscriptions'
 
-const fallbackRunWithContext = (fn: () => unknown) => fn()
+const fallbackRunWithContext = <T>(fn: () => T): T => fn()
 
 type _ArrayType<AT> = AT extends Array<infer T> ? T : never
 
@@ -502,7 +502,7 @@ function createSetupStore<
             prop.value = initialState[key]
           } else {
             // probably a reactive object, lets recursively assign
-            // #ts-expect-error: prop is unknown
+            // @ts-expect-error: prop is unknown
             mergeReactiveObjects(prop, initialState[key])
           }
         }
@@ -521,7 +521,7 @@ function createSetupStore<
       }
       // action
     } else if (typeof prop === 'function') {
-      // #ts-expect-error: we are overriding the function we avoid wrapping if
+      // @ts-expect-error: we are overriding the function we avoid wrapping if
       const actionValue = __DEV__ && hot ? prop : wrapAction(key, prop)
       // this a hot module replacement store because the hotUpdate method needs
       // to do it with the right context
@@ -529,7 +529,7 @@ function createSetupStore<
       if (isVue2) {
         set(setupStore, key, actionValue)
       } else {
-        // #ts-expect-error
+        // @ts-expect-error
         setupStore[key] = actionValue
       }
 
@@ -551,7 +551,7 @@ function createSetupStore<
         if (IS_CLIENT) {
           const getters: string[] =
             (setupStore._getters as string[]) ||
-            // #ts-expect-error: same
+            // @ts-expect-error: same
             ((setupStore._getters = markRaw([])) as string[])
           getters.push(key)
         }
