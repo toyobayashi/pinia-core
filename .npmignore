@@ -1,0 +1,10 @@
+.DS_Store
+node_modules
+/lib
+/src
+/temp
+rollup.config*
+tsconfig*
+package-lock.json
+.vscode
+test

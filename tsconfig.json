@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "module": "ESNext",
+    "target": "ES5",
+    "moduleResolution": "node",
+    "declaration": true,
+    "outDir": "lib",
+    "lib": [
+      "DOM",
+      "ES2021"
+    ]
+  },
+  "include": [
+    "src/**/*.ts"
+  ]
+}

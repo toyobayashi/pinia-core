@@ -1,0 +1,31 @@
+{
+  "name": "pinia-core",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "module": "./dist/pinia-core.esm-bundler.js",
+  "browser": "./dist/pinia-core.esm-bundler.js",
+  "types": "./dist/pinia-core.d.ts",
+  "scripts": {
+    "tsc": "tsc -p tsconfig.json && api-extractor run --verbose --local",
+    "rollup": "rollup -c rollup.config.mjs",
+    "build": "npm run tsc && npm run rollup"
+  },
+  "keywords": [],
+  "author": "toyobayashi",
+  "license": "MIT",
+  "dependencies": {
+    "@vue/reactivity": "3.3.8",
+    "@vue/shared": "3.3.8"
+  },
+  "devDependencies": {
+    "@microsoft/api-extractor": "^7.38.2",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-replace": "^5.0.5",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^11.1.5",
+    "rollup": "^4.3.0",
+    "tslib": "^2.6.2",
+    "typescript": "~5.0.4"
+  }
+}
