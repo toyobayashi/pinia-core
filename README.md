@@ -11,6 +11,8 @@ npm run dev
 
 Based on Vue 3.3.8 & Pinia 2.1.7
 
+Example:
+
 ```ts
 import { useRef, useCallback, useSyncExternalStore } from 'react'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
@@ -103,5 +105,13 @@ const composeMainStore = defineStore('main_store', {
 
 const mainStore = composeMainStore(pinia)
 
-export { mainStore }
+export default function Component () {
+  // connect store
+  const store = useStore(mainStore)
+
+  // with selector
+  const storeCount = useStore(mainStore, (state) => state.count)
+
+  // ...
+}
 ```
