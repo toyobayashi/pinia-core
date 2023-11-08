@@ -3,22 +3,32 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import type { Plugin, InjectionKey, App } from '@vue/runtime-core'
 import { Store, createPinia, defineStore } from '../../..'
 
-export function useStore<S extends Store, T = S> (piniaStore: S, selector?: (state: S['$state']) => T): T {
-  const snap = useRef(null as unknown as { currentSelector: unknown; result: unknown })
+export function usePiniaStore<S extends Store, T = S> (
+  piniaStore: S,
+  selector?: (state: S['$state']) => T
+): T {
+  const snap = useRef(null as unknown as {
+    currentSelector: ((state: S['$state']) => T) | undefined;
+    result: unknown
+  })
+
   if (!snap.current) {
     snap.current = {
       currentSelector: selector,
-      result: selector ? selector(piniaStore.$state) : piniaStore
+      result: selector ? selector(piniaStore.$state) : new Proxy(piniaStore, {})
     }
   } else {
-    if (!Object.is(selector, snap.current.currentSelector)) {
+    const newSelector = !Object.is(selector, snap.current.currentSelector)
+    if (newSelector) {
       snap.current.currentSelector = selector
-      snap.current.result = selector ? selector(piniaStore.$state) : new Proxy(piniaStore, {}) as typeof piniaStore
+      snap.current.result = selector
+        ? selector(piniaStore.$state)
+        : new Proxy(piniaStore, {}) as S
     }
   }
 
   const sub = useCallback((onUpdate: () => void) => {
-    return mainStore.$subscribe((_, state) => {
+    return piniaStore.$subscribe((_, state) => {
       if (typeof selector === 'function') {
         const mayBeNew = selector(state)
         if (!Object.is(mayBeNew, snap.current.result)) {
@@ -26,7 +36,7 @@ export function useStore<S extends Store, T = S> (piniaStore: S, selector?: (sta
           onUpdate()
         }
       } else {
-        snap.current.result = new Proxy(piniaStore, {}) as typeof piniaStore
+        snap.current.result = new Proxy(piniaStore, {})
         onUpdate()
       }
     })
@@ -68,12 +78,17 @@ pinia.use(piniaPluginPersistedstate)
 fakeVueApp.use(pinia)
 
 declare module '../../..' {
-  interface DefineStoreOptions<Id extends string, S extends StateTree, G, A> extends DefineStoreOptionsBase<S, Store<Id, S, G, A>> {
+  interface DefineStoreOptions<
+    Id extends string,
+    S extends StateTree,
+    G,
+    A
+  > extends DefineStoreOptionsBase<S, Store<Id, S, G, A>> {
     persist: boolean
   }
 }
 
-const composeMainStore = defineStore('main_store', {
+const mainStore = defineStore('main_store', {
   persist: true,
   state: () => {
     return {
@@ -85,8 +100,6 @@ const composeMainStore = defineStore('main_store', {
       this.count++
     }
   }
-})
-
-const mainStore = composeMainStore(pinia)
+})()
 
 export { mainStore }

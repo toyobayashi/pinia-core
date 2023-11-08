@@ -24,6 +24,13 @@ const replaceValues = {
 
 const tsOptions = { declaration: false }
 const aliasOptions = { entries: [{ find: 'vue-demi', replacement: join(__dirname, './src/vue/index.ts') }] }
+const terserOptions = {
+  compress:true,
+  mangle: true,
+  output: {
+    comments: false
+  }
+}
 
 export default defineConfig([
   {
@@ -44,6 +51,47 @@ export default defineConfig([
           ...replaceValues
         }
       })
+    ]
+  },
+  {
+    input,
+    output: {
+      file: join(__dirname, './dist/pinia-core.cjs.js'),
+      format: 'cjs'
+    },
+    external: ['@vue/reactivity', '@vue/shared', '@vue/runtime-core', '@vue/devtools-api'],
+    plugins: [
+      ts(tsOptions),
+      nodeResolve(),
+      alias(aliasOptions),
+      replace({
+        preventAssignment: true,
+        values: {
+          __DEV__: 'true',
+          ...replaceValues
+        }
+      })
+    ]
+  },
+  {
+    input,
+    output: {
+      file: join(__dirname, './dist/pinia-core.cjs.min.js'),
+      format: 'cjs'
+    },
+    external: ['@vue/reactivity', '@vue/shared', '@vue/runtime-core', '@vue/devtools-api'],
+    plugins: [
+      ts(tsOptions),
+      nodeResolve(),
+      alias(aliasOptions),
+      replace({
+        preventAssignment: true,
+        values: {
+          __DEV__: 'false',
+          ...replaceValues
+        }
+      }),
+      terser(terserOptions)
     ]
   },
   {
@@ -94,7 +142,7 @@ export default defineConfig([
           ...replaceValues
         }
       }),
-      terser()
+      terser(terserOptions)
     ]
   },
 ])

@@ -3,14 +3,14 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 
-import { mainStore, useStore } from './store'
+import { mainStore, usePiniaStore } from './store'
 
 function App() {
   console.log('App')
   const [count, setCount] = useState(0)
 
-  const storeCount = useStore(mainStore, (state) => state.count)
-  const store = useStore(mainStore)
+  const storeCount = usePiniaStore(mainStore, (state) => state.count)
+  const store = usePiniaStore(mainStore)
 
   return (
     <>

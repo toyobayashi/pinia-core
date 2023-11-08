@@ -1,7 +1,7 @@
 {
   "name": "pinia-core",
   "version": "1.0.0",
-  "description": "",
+  "description": "Pinia that can be used in react",
   "main": "index.js",
   "module": "./dist/pinia-core.esm-bundler.js",
   "browser": "./dist/pinia-core.esm-bundler.js",
@@ -11,15 +11,18 @@
     "rollup": "rollup -c rollup.config.mjs",
     "build": "npm run tsc && npm run rollup"
   },
-  "keywords": [],
+  "keywords": [
+    "pinia",
+    "react"
+  ],
   "author": "toyobayashi",
   "license": "MIT",
+  "sideEffects": false,
   "dependencies": {
     "@vue/devtools-api": "^6.5.0"
   },
   "peerDependencies": {
-    "@vue/runtime-core": "^3.3.0",
-    "@vue/reactivity": "^3.3.0"
+    "@vue/runtime-core": "^3.3.0"
   },
   "devDependencies": {
     "@microsoft/api-extractor": "^7.38.2",
