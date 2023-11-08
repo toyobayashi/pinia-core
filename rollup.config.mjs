@@ -4,6 +4,7 @@ import { defineConfig } from "rollup"
 import ts from '@rollup/plugin-typescript'
 import replace from '@rollup/plugin-replace'
 import nodeResolve from '@rollup/plugin-node-resolve'
+import alias from '@rollup/plugin-alias'
 import terser from '@rollup/plugin-terser'
 import { createRequire } from 'module'
 
@@ -22,6 +23,7 @@ const replaceValues = {
 }
 
 const tsOptions = { declaration: false }
+const aliasOptions = { entries: [{ find: 'vue-demi', replacement: join(__dirname, './src/vue/index.ts') }] }
 
 export default defineConfig([
   {
@@ -30,10 +32,11 @@ export default defineConfig([
       file: join(__dirname, './dist/pinia-core.esm-bundler.js'),
       format: 'esm'
     },
-    external: ['@vue/reactivity', '@vue/shared', '@vue/runtime-core'],
+    external: ['@vue/reactivity', '@vue/shared', '@vue/runtime-core', '@vue/devtools-api'],
     plugins: [
       ts(tsOptions),
       nodeResolve(),
+      alias(aliasOptions),
       replace({
         preventAssignment: true,
         values: {
@@ -57,6 +60,7 @@ export default defineConfig([
     plugins: [
       ts(tsOptions),
       nodeResolve(),
+      alias(aliasOptions),
       replace({
         preventAssignment: true,
         values: {
@@ -81,6 +85,7 @@ export default defineConfig([
     plugins: [
       ts(tsOptions),
       nodeResolve(),
+      alias(aliasOptions),
       replace({
         preventAssignment: true,
         values: {

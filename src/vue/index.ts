@@ -17,6 +17,8 @@ export type {
   App
 } from '@vue/runtime-core'
 
+// export * from '@vue/runtime-core'
+
 export const isVue2 = false
 
 export function set (obj: any, k: any, v: any) { obj[k] = v }

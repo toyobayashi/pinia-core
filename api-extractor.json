@@ -45,7 +45,8 @@
    *
    * SUPPORTED TOKENS: <projectFolder>, <packageName>, <unscopedPackageName>
    */
-  "mainEntryPointFilePath": "<projectFolder>/lib/index.d.ts",
+  // "mainEntryPointFilePath": "<projectFolder>/lib/index.d.ts",
+  "mainEntryPointFilePath": "<projectFolder>/node_modules/pinia/dist/pinia.d.ts",
 
   /**
    * A list of NPM package names whose exports should be treated as part of this package.
@@ -393,6 +394,10 @@
       "default": {
         "logLevel": "none"
         // "addToApiReportFile": false
+      },
+
+      "ae-wrong-input-file-type": {
+        "logLevel": "warning"
       }
 
       // "ae-extra-release-tag": {

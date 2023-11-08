@@ -8,9 +8,12 @@
     "lib": [
       "DOM",
       "ES2021"
-    ]
+    ],
+    "paths": {
+      "vue-demi": ["./src/vue/index"]
+    }
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*"
   ]
 }
