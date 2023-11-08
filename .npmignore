@@ -3,6 +3,7 @@ node_modules
 /lib
 /src
 /temp
+/scripts
 rollup.config*
 tsconfig*
 package-lock.json

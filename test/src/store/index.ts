@@ -101,6 +101,6 @@ const mainStore = defineStore('main_store', {
       this.count++
     }
   }
-})()
+})(pinia)
 
 export { mainStore }

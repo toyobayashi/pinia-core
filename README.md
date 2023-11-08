@@ -110,7 +110,7 @@ const mainStore = defineStore('main_store', {
       this.count++
     }
   }
-})()
+})(pinia)
 
 export default function Component () {
   // connect store

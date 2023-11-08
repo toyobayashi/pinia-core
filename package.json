@@ -9,7 +9,8 @@
   "scripts": {
     "tsc": "tsc -p tsconfig.json && api-extractor run --verbose --local",
     "rollup": "rollup -c rollup.config.mjs",
-    "build": "npm run tsc && npm run rollup"
+    "build": "npm run tsc && npm run rollup",
+    "prepare": "npm run build"
   },
   "keywords": [
     "pinia",
@@ -31,7 +32,6 @@
     "@rollup/plugin-replace": "^5.0.5",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^11.1.5",
-    "@vue/composition-api": "^1.7.2",
     "pinia": "2.1.7",
     "rollup": "^4.3.0",
     "tslib": "^2.6.2",
