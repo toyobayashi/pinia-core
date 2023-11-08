@@ -68,6 +68,7 @@ export default defineConfig([
         preventAssignment: true,
         values: {
           __DEV__: 'true',
+          'process.env.NODE_ENV': '"development"',
           ...replaceValues
         }
       })
@@ -88,6 +89,7 @@ export default defineConfig([
         preventAssignment: true,
         values: {
           __DEV__: 'false',
+          'process.env.NODE_ENV': '"production"',
           ...replaceValues
         }
       }),
