@@ -2,6 +2,7 @@ import { useRef, useCallback, useSyncExternalStore } from 'react'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import type { Plugin, InjectionKey, App } from '@vue/runtime-core'
 import { Store, createPinia, defineStore } from '../../..'
+import type { PiniaPlugin } from '../../..'
 
 export function usePiniaStore<S extends Store, T = S> (
   piniaStore: S,
@@ -74,7 +75,7 @@ const fakeVueApp: FakeApp = {
 }
 
 const pinia = createPinia()
-pinia.use(piniaPluginPersistedstate)
+pinia.use(piniaPluginPersistedstate as unknown as PiniaPlugin)
 fakeVueApp.use(pinia)
 
 declare module '../../..' {
