@@ -15,7 +15,7 @@ const require = createRequire(import.meta.url)
 
 const replaceValues = {
   __VERSION__: JSON.stringify(require('./package.json').version),
-  __PINIA_VESION__: '"2.1.7"',
+  __PINIA_VESION__: JSON.stringify(require('pinia').version),
   __TEST__: 'false',
   __FEATURE_PROD_DEVTOOLS__: 'false',
   __COMPAT__: 'false',

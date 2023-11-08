@@ -1,6 +1,6 @@
 {
   "name": "pinia-core",
-  "version": "1.0.0",
+  "version": "2.1.7",
   "description": "Pinia that can be used in react",
   "main": "index.js",
   "module": "./dist/pinia-core.esm-bundler.js",
@@ -31,6 +31,7 @@
     "@rollup/plugin-replace": "^5.0.5",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^11.1.5",
+    "@vue/composition-api": "^1.7.2",
     "pinia": "2.1.7",
     "rollup": "^4.3.0",
     "tslib": "^2.6.2",

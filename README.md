@@ -1,15 +1,8 @@
 # Use 🍍 in React
 
 ```bash
-npm install
-npm run build
-
-cd test
-npm install
-npm run dev
+npm install @vue/runtime-core pinia-core
 ```
-
-Based on Vue 3.3.8 & Pinia 2.1.7
 
 Example:
 

@@ -8,3 +8,4 @@ tsconfig*
 package-lock.json
 .vscode
 test
+api-extractor.json
