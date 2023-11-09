@@ -28,6 +28,7 @@ export interface SetupComponentInstance<P extends object, R extends object | ((.
   scope: EffectScope
   props: ShallowReactive<P>
   setupResult: R
+  f: () => void
   [LifecycleHooks.BEFORE_MOUNT]: (() => void)[]
   [LifecycleHooks.MOUNTED]: (() => void)[]
   [LifecycleHooks.BEFORE_UPDATE]: (() => void)[]
@@ -46,20 +47,49 @@ function invokeLifecycle(target: SetupComponentInstance<any, any>, type: Lifecyc
 
 const injectHook = (target: SetupComponentInstance<any, any>, type: LifecycleHooks) => (hook: () => any) => {
   (target[type] = target[type] || []).push(() => {
-    target.scope.run(hook)
+    if (target.scope) {
+      target.scope.run(hook)
+    } else {
+      hook()
+    }
   })
+}
+
+function clearAllLifecycles (target: SetupComponentInstance<any, any>) {
+  const lifecycles = [
+    LifecycleHooks.BEFORE_MOUNT,
+    LifecycleHooks.MOUNTED,
+    LifecycleHooks.BEFORE_UPDATE,
+    LifecycleHooks.UPDATED,
+    LifecycleHooks.BEFORE_UNMOUNT,
+    LifecycleHooks.UNMOUNTED
+  ]
+  for (let i = 0; i < lifecycles.length; ++i) {
+    target[lifecycles[i]].length = 0
+  }
 }
 
 function initInstance<P extends object, R extends object | ((...args: any[]) => JSX.Element)> (
   instance: MutableRefObject<SetupComponentInstance<P, R>>,
-  setupFunction: SetupFunction<P,R>,
-  props: P,
-  update: (v: any) => void
+  setupFunction?: SetupFunction<P,R>,
+  update?: (v: any) => void,
+  props?: P
 ) {
   const scope = effectScope()
-  instance.current.setup = setupFunction
+  if (update) {
+    instance.current.f = () => { update(Object.create(null)) }
+  }
+  if (setupFunction) {
+    instance.current.setup = setupFunction
+  }
   instance.current.scope = scope
-  instance.current.props = shallowReactive({ ...props })
+  if (props) {
+    if (!instance.current.props) {
+      instance.current.props = shallowReactive({ ...props })
+    } else {
+      updateReactiveProps(instance, props)
+    }
+  }
   instance.current[LifecycleHooks.BEFORE_MOUNT] = []
   instance.current[LifecycleHooks.MOUNTED] = []
   instance.current[LifecycleHooks.BEFORE_UPDATE] = []
@@ -78,14 +108,14 @@ function initInstance<P extends object, R extends object | ((...args: any[]) => 
 
   const updateCallback = () => {
     invokeLifecycle(instance.current, LifecycleHooks.BEFORE_UPDATE)
-    update(Object.create(null))
+    instance.current.f()
     nextTick().then(() => {
       invokeLifecycle(instance.current, LifecycleHooks.UPDATED)
     })
   }
 
   const setupResult = scope.run(() => {
-    return setupFunction(readonly(instance.current.props) as P, context)
+    return instance.current.setup(readonly(instance.current.props) as P, context)
   })
 
   if (typeof setupResult === 'function') {
@@ -113,7 +143,7 @@ function initInstance<P extends object, R extends object | ((...args: any[]) => 
   }
 
   queuePostFlushCb(() => {
-    update(Object.create(null))
+    instance.current.f()
   })
 }
 
@@ -141,34 +171,30 @@ export function useSetup<P extends object, R extends object | ((...args: any[]) 
 
   if (!instance.current) {
     instance.current = {} as unknown as SetupComponentInstance<P, R>
-    initInstance(instance, setupFunction, props, update)
+    initInstance(instance, setupFunction, update, props)
     invokeLifecycle(instance.current, LifecycleHooks.BEFORE_MOUNT)
   } else {
     if (!Object.is(instance.current.setup, setupFunction)) {
       instance.current.scope.stop()
-      initInstance(instance, setupFunction, props, update)
+      initInstance(instance, setupFunction, update, props)
     } else {
       updateReactiveProps(instance, props)
     }
   }
 
-  useEffect(
-    () => {
-      if (!instance.current) {
-        instance.current = {} as unknown as SetupComponentInstance<P, R>
-        initInstance(instance, setupFunction, props, update)
-      }
-      invokeLifecycle(instance.current, LifecycleHooks.MOUNTED)
-      return () => {
-        invokeLifecycle(instance.current, LifecycleHooks.BEFORE_UNMOUNT)
-        instance.current.scope.stop()
-        invokeLifecycle(instance.current, LifecycleHooks.UNMOUNTED)
-        instance.current = null!
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  )
+  useEffect(() => {
+    if (!instance.current.scope) {
+      initInstance(instance)
+    }
+    invokeLifecycle(instance.current, LifecycleHooks.MOUNTED)
+    return () => {
+      invokeLifecycle(instance.current, LifecycleHooks.BEFORE_UNMOUNT)
+      instance.current.scope.stop()
+      instance.current.scope = null!
+      invokeLifecycle(instance.current, LifecycleHooks.UNMOUNTED)
+      clearAllLifecycles(instance.current)
+    }
+  }, [])
 
   return instance.current.setupResult
 }
