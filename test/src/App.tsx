@@ -1,13 +1,29 @@
-import { useState } from 'react'
+// import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 
 import { mainStore, usePiniaStore } from './store'
+import { useSetup } from './hooks/setup'
+import { proxyRefs, ref } from '@vue/runtime-core'
 
-function App() {
-  console.log('App')
-  const [count, setCount] = useState(0)
+const AppSetup = () => {
+  const count = ref(0)
+
+  const setCount = (value: number | ((v: number) => number)) => {
+    if (typeof value === 'function') {
+      count.value = value(count.value)
+    } else {
+      count.value = value
+    }
+  }
+  return proxyRefs({ count, setCount })
+}
+
+function App(props: object) {
+  // const [count, setCount] = useState(0)
+
+  const { count, setCount } = useSetup(AppSetup, props)
 
   const storeCount = usePiniaStore(mainStore, (state) => state.count)
   const store = usePiniaStore(mainStore)

@@ -15,32 +15,32 @@ import type { PiniaPlugin } from 'pinia-core'
 
 function usePiniaStore<S extends Store, T = S> (
   piniaStore: S,
-  selector?: (state: S['$state']) => T
+  selector?: (store: S) => T
 ): T {
   const snap = useRef(null as unknown as {
-    currentSelector: ((state: S['$state']) => T) | undefined;
+    currentSelector: ((store: S) => T) | undefined;
     result: unknown
   })
 
   if (!snap.current) {
     snap.current = {
       currentSelector: selector,
-      result: selector ? selector(piniaStore.$state) : new Proxy(piniaStore, {})
+      result: selector ? selector(piniaStore) : new Proxy(piniaStore, {})
     }
   } else {
     const newSelector = !Object.is(selector, snap.current.currentSelector)
     if (newSelector) {
       snap.current.currentSelector = selector
       snap.current.result = selector
-        ? selector(piniaStore.$state)
+        ? selector(piniaStore)
         : new Proxy(piniaStore, {}) as S
     }
   }
 
   const sub = useCallback((onUpdate: () => void) => {
-    return piniaStore.$subscribe((_, state) => {
+    return piniaStore.$subscribe(() => {
       if (typeof selector === 'function') {
-        const mayBeNew = selector(state)
+        const mayBeNew = selector(piniaStore)
         if (!Object.is(mayBeNew, snap.current.result)) {
           snap.current.result = mayBeNew
           onUpdate()
