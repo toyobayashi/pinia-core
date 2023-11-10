@@ -4,48 +4,61 @@ import type { Plugin, InjectionKey, App } from '@vue/runtime-core'
 import { Store, createPinia, defineStore } from '../../..'
 import type { PiniaPlugin } from '../../..'
 
-export function usePiniaStore<S extends Store, T = S> (
-  piniaStore: S,
-  selector?: (store: S) => T
-): T {
-  const snap = useRef(null as unknown as {
-    currentSelector: ((store: S) => T) | undefined;
-    result: unknown
-  })
+class SnapshotSaver<S extends object> {
+  private _store: S
+  private _selector?: (store: S) => unknown
+  public getSnapshot: () => unknown
+  public updateSnapshot: () => void
 
-  if (!snap.current) {
-    snap.current = {
-      currentSelector: selector,
-      result: selector ? selector(piniaStore) : new Proxy(piniaStore, {})
+  public constructor (store: S, selector?: (store: S) => unknown) {
+    this._store = store
+    this._selector = selector
+
+    let snapshot: unknown
+    this.getSnapshot = () => snapshot
+    this.updateSnapshot = () => {
+      const { _store, _selector } = this
+      snapshot = _selector ? _selector(_store) : new Proxy(_store, {})
     }
-  } else {
-    const newSelector = !Object.is(selector, snap.current.currentSelector)
-    if (newSelector) {
-      snap.current.currentSelector = selector
-      snap.current.result = selector
-        ? selector(piniaStore)
-        : new Proxy(piniaStore, {}) as S
-    }
+
+    this.updateSnapshot()
   }
 
-  const sub = useCallback((onUpdate: () => void) => {
-    return piniaStore.$subscribe(() => {
-      if (typeof selector === 'function') {
-        const mayBeNew = selector(piniaStore)
-        if (!Object.is(mayBeNew, snap.current.result)) {
-          snap.current.result = mayBeNew
-          onUpdate()
-        }
-      } else {
-        snap.current.result = new Proxy(piniaStore, {})
-        onUpdate()
-      }
+  public tryUpdate (store: S, selector: ((store: S) => unknown) | undefined) {
+    const prevStore = this._store
+    const prevSelector = this._selector
+    const newStore = !Object.is(store, prevStore)
+    const newSelector = !Object.is(selector, prevSelector)
+    if (newStore) this._store = store
+    if (newSelector) this._selector = selector
+    if (newStore || newSelector) {
+      this.updateSnapshot()
+    }
+  }
+}
+
+export function usePiniaStore<
+  S extends { $subscribe: (cb: (...args: unknown[]) => unknown) => () => void },
+  T = S
+> (
+  store: S,
+  selector?: (store: S) => T
+): T {
+  const snap = useRef<SnapshotSaver<S>>(null!)
+  if (!snap.current) {
+    snap.current = new SnapshotSaver(store, selector)
+  } else {
+    snap.current.tryUpdate(store, selector)
+  }
+
+  const subscribe = useCallback((onStoreChange: () => void) => {
+    return store.$subscribe(() => {
+      snap.current.updateSnapshot()
+      onStoreChange()
     })
-  }, [piniaStore, selector])
+  }, [store])
 
-  const getSnap = useCallback(() => snap.current.result as T, [])
-
-  return useSyncExternalStore(sub, getSnap)
+  return useSyncExternalStore(subscribe, snap.current.getSnapshot as () => T)
 }
 
 interface FakeApp {

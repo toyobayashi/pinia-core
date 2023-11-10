@@ -5,7 +5,7 @@ import './App.css'
 
 import { mainStore, usePiniaStore } from './store'
 import { useSetup } from './hooks/setup'
-import { proxyRefs, ref } from '@vue/runtime-core'
+import { computed, proxyRefs, ref } from '@vue/runtime-core'
 
 const AppSetup = () => {
   const count = ref(0)
@@ -17,13 +17,16 @@ const AppSetup = () => {
       count.value = value
     }
   }
-  return proxyRefs({ count, setCount })
+
+  const doubleCount = computed(() => count.value * 2)
+
+  return proxyRefs({ count, setCount, doubleCount })
 }
 
 function App(props: object) {
   // const [count, setCount] = useState(0)
 
-  const { count, setCount } = useSetup(AppSetup, props)
+  const { count, setCount, doubleCount } = useSetup(AppSetup, props)
 
   const storeCount = usePiniaStore(mainStore, (state) => state.count)
   const store = usePiniaStore(mainStore)
@@ -41,7 +44,7 @@ function App(props: object) {
       <h1>Vite + React</h1>
       <div className="card">
         <button onClick={() => { setCount(c => c + 1) }}>
-          count is {count}
+          count is {count} * 2 = {doubleCount}
         </button>
         <button onClick={() => mainStore.addCount()}>
           store count is {storeCount}
