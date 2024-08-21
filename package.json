@@ -1,6 +1,6 @@
 {
   "name": "pinia-core",
-  "version": "2.1.7",
+  "version": "2.2.2",
   "description": "Pinia that can be used in react",
   "main": "index.js",
   "module": "./dist/pinia-core.esm-bundler.js",
@@ -20,21 +20,19 @@
   "license": "MIT",
   "sideEffects": false,
   "dependencies": {
-    "@vue/devtools-api": "^6.5.0"
-  },
-  "peerDependencies": {
-    "@vue/runtime-core": "^3.3.0"
+    "@vue/devtools-api": "^6.6.3",
+    "@vue/runtime-core": "^3.4.0"
   },
   "devDependencies": {
-    "@microsoft/api-extractor": "^7.38.2",
-    "@rollup/plugin-alias": "^5.0.1",
+    "@microsoft/api-extractor": "^7.47.7",
+    "@rollup/plugin-alias": "^5.1.0",
     "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-replace": "^5.0.5",
+    "@rollup/plugin-replace": "^5.0.7",
     "@rollup/plugin-terser": "^0.4.4",
-    "@rollup/plugin-typescript": "^11.1.5",
-    "pinia": "2.1.7",
-    "rollup": "^4.3.0",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "pinia": "2.2.2",
+    "rollup": "^4.21.0",
     "tslib": "^2.6.2",
-    "typescript": "~5.0.4"
+    "typescript": "~5.4.2"
   }
 }
